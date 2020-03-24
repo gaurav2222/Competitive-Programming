@@ -1,0 +1,223 @@
+/***
+//https://www.hackerearth.com/challenges/competitive/march-circuits-20/algorithm/shift-and-replace-d96fc236/
+
+You are given an array  of  integers. The following two operations can be performed on the provided array and 
+each operation costs 1 unit.
+1. Change the value of any element (only one element).
+2. Perform cyclic shifts to the array to left by 1 unit. For example, if an array is 2 3 1 4 and 1 left shift is performed, 
+then the array becomes 3 1 4 2 .
+You are given Q queries of type X B . For each query, you must replace the value of the element at index X with B. 
+Find the minimum cost required to convert array A to the identity array.
+An identity array of size N is 1, 2, 3, 4, 5, 6, .... N-1, N. 
+Note: For each query, you cannot perform actual operations on array A  apart from setting A[X] to B.
+Input format:
+The first line contains n denoting the number of elements in the array.
+The second line contains N space-separated integers.
+The next line contains Q denoting the number of queries.
+The next Q lines contain queries of type X B.
+Output format:
+Print Q integers in a separate line representing the answer to Q queries.
+Constraints:
+1<=N,Q<=1e5
+1<=X<=N
+1<=A[i],B<=10^9
+SAMPLE INPUT 
+4
+2 1 2 3
+3
+1 1
+1 4
+4 40
+SAMPLE OUTPUT 
+2
+1
+2
+Explanation
+Initial array after Query 1, [1,1,2,3]. Minimum cost is 2. 
+Cyclic Shift once and replace value of last index to be 4.
+Array after Query 2, [4,1,2,3]. Minimum cost is 1. Cyclic Shift once.
+Array after Query 3, [4,1,2,40]. Minimum cos is  2. Cyclic Shift once, replace 3rd element with 3.
+
+Time Limit:	1.0 sec(s) for each input file.
+Memory Limit:	256 MB
+Source Limit:	1024 KB
+
+***/
+
+#include<bits/stdc++.h>
+using namespace std;
+ 
+struct pr { 
+    int first; 
+    int second; 
+};
+
+bool operator<(pr a, pr b) 
+{ 
+    if (a.first == b.first) 
+        return a.second > b.second; 
+    return a.first < b.first; 
+}
+
+set<pr> s1, s2;
+unordered_map<int, int> m;
+
+//function type1() is to insert a new number num to map m and sets s1 and s2
+void type1(int num){
+    if (m[num]){  
+        int cnt = m[num]; // get the frequency of the element
+        
+        // returns an iterator pointing to position where the pair is 
+        auto it1 = s1.find({ num, cnt }); 
+        auto it2 = s2.find({ cnt, num }); 
+  
+        // deletes the pair from sets s1 and s2
+        s1.erase(it1); 
+        s2.erase(it2); 
+  
+        // re-insert the pair by increasing frequency 
+        s1.insert({ num, m[num] + 1 }); 
+        s2.insert({ m[num] + 1, num }); 
+    } 
+  
+    // if the element is not there in the list 
+    else{ 
+        s1.insert({num, 1}); //insert the element with frequency 1 in set s1
+        s2.insert({1, num}); //insert the element with frequency 1 in set s2
+    } 
+    m[num] += 1;  // increase the frequency of number num in map m 
+}
+
+//function type2() is to delete a previous number num from map m and sets 
+//s1 and s2
+void type2(int num){ 
+    // if the element exists in map m
+    if (m[num]) {  
+        int cnt = m[num]; // get the frequency of the element
+  
+        // returns an iterator pointing to position where the pair is 
+        auto it1 = s1.find({ num, cnt }); 
+        auto it2 = s2.find({ cnt, num }); 
+  
+        // deletes the pair from sets 
+        s1.erase(it1); 
+        s2.erase(it2); 
+  
+        // re-insert the pair by increasing frequency 
+        s1.insert({ num, m[num] - 1 }); 
+        s2.insert({ m[num] - 1, num }); 
+
+        m[num] -= 1; // decrease the frequency of number num in map m
+    }
+    return;//if the element does not exists in map m return from this function
+}
+
+// function type4() returns pair {h,k} where 
+// h is the number of shifts (or number of left rotations) required 
+// or we can say that h is the cost due to shifts only.
+// k is the count of numbers in vector a which will go to its ideal postion 
+// by shifts h.
+
+pr type4(){ 
+    // if the set s1 is not empty return the last element 
+    if (!s1.empty()) { 
+        auto it = s2.rbegin(); 
+        return pr{it->second, it->first}; 
+    }
+    else // s1 is empty means no number less than n is present in vector a
+        return pr{-1,0}; 
+} 
+
+int main(){
+    int n, q;
+    cin>>n;
+    vector<int>a(n);
+    for(int i=0; i<n; i++)cin>>a[i];
+    cin>>q;
+    int x, b;
+ 
+    vector<int>ia(n); // vector ia is the ideal vector of n numbers;
+    for(int i=0; i<n; i++)ia[i]=i+1;
+    
+    vector<int>d(n);
+    //d[i] represents number of shifts ith element require to reach its ideal
+    //position
+    for(int i=0; i<n; i++){
+        if(a[i]<=n)d[i]=a[i]-ia[i]<=0 ? abs(ia[i]-a[i]) : abs(n-(a[i]-ia[i]));
+else d[i]=-(i+1); // for a[i]>n we assign a unique negative value to that d[i]
+    }
+
+    // max_replace stores how many replacements require to convert vector a to
+    // ideal vector ia. It does not consider shift moves or we can say that 
+    // max_replace is the cost due to replacements only.
+    int max_replace=0;
+
+    for(int i=0; i<n; i++){
+        if(d[i]!=0)max_replace++;
+    }
+
+    for(int i=0; i<n; i++){
+        if(d[i]>=0)m[d[i]]++;
+    }
+
+    for(auto it=m.begin(); it!=m.end(); it++){
+        s1.insert({it->first, it->second});
+        s2.insert({it->second, it->first});
+    }
+    
+    while(q--){
+        cin>>x>>b;
+
+    type2(d[x-1]);//delete previous d[x-1] since a[x-1] will be replaced by b
+        
+        if(d[x-1]!=0)max_replace--;
+
+        a[x-1]=b;
+
+        if(b<=n){
+    d[x-1]=a[x-1]-ia[x-1]<=0 ? abs(ia[x-1]-a[x-1]) : abs(n-(a[x-1]-ia[x-1]));  
+        }
+
+        else if(b>n) d[x-1]=-(x-1 + 1);
+
+        if(d[x-1]!=0)max_replace++;
+
+        if(d[x-1]>=0)type1(d[x-1]);
+
+        // type4().first is the cost due to shifts only.
+
+        // type4().second is the count of numbers in vector a that will go to 
+        // their ideal postions after having type4().first shifts in vector a
+
+        // So, n-type4().second is the count of numbers that to be replaced
+        // by their ideal numbers, Or
+        // n-type4().second is the cost due to replacements after having
+        // type4().first shifts in vector a.
+
+        if(type4().first!=-1){
+            cout<<min(max_replace, type4().first + n-type4().second)<<endl;
+        }
+        else if(type4().first==-1){ // s1 is empty means no number less than n 
+            cout<<n<<endl;   //is present in vector a, so minimum cost is n .
+        }
+    }
+    return 0;
+}
+/**
+Code Explanation/Hints:
+Step-1 :  We make an array d such that d[i] represents number of shifts ith element require to reach its ideal position. 
+If it is not possible for any a[i] by shifts means a[i]>n then we assign a unique negative value to d[i].
+
+Step-2 : We need to find the most occuring value in vector d, if more than one value is occuring maximum times in d
+then we choose the smallest among most occuring values. This can be done by using approach from below mentioned link
+
+https://www.geeksforgeeks.org/queries-to-insert-delete-one-occurrence-of-a-number-and-print-the-least-and-most-frequent-element/?ref=rp
+
+So, most occuring value is the cost of shift and n-frequency of this value is the cost due to replacements.
+
+Step-3 : We will find max_replace that is equal to the maximum number of replacements require also without considering any shift moves.
+
+Step-4 : Consider boundary case if all elements in array are greater than n, then our answer is n.
+
+Step-5 : Otherwise our answer is min(max_replace, shifts + n-frequency of most occuring value(shifts) in array d).
+**/
