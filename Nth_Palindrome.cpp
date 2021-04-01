@@ -92,18 +92,18 @@ ll Nth_palindrome(ll n){
             }
             res=stoll(ans);
         }
-		else{
-			temp+=to_string(9);
-			for(int i=2; i<nt.length(); i++){
-				temp+=nt[i];
-			}
-			ans+=temp;
-			for(int i=temp.length()-2; i>=0; i--){
-				ans+=temp[i];
-			}
-			res=stoll(ans);
+	else{
+		temp+=to_string(9);
+		for(int i=2; i<nt.length(); i++){
+			temp+=nt[i];
 		}
-		return res;
+		ans+=temp;
+		for(int i=temp.length()-2; i>=0; i--){
+			ans+=temp[i];
+		}
+		res=stoll(ans);
+	}
+	return res;
     }
 }
 int main(){
