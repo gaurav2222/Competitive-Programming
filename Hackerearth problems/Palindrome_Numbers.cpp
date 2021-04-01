@@ -169,7 +169,7 @@ ll Nth_palindrome(ll n){ // Constraint: 1<=n<=1e9
 // and so passed all the test cases.
 ll solve(ll x, ll k){
     if(x==1){
-        return Nth_palindrome(k+1);//Simply return the kth palindrome number, So called Nth_pal_util(k+1)
+        return Nth_palindrome(k+1);//Simply return the kth palindrome number, So called Nth_palindrome(k+1)
     }
     
     vector<ll>v={9,18,108,198,1098,1998,10998,19998,109998,199998,1099998,1999998,10999998,19999998,109999998,199999998,1099999998,1999999998};
