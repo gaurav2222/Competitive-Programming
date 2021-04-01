@@ -1,7 +1,7 @@
 /********
-https://www.hackerearth.com/problem/algorithm/kth-palindrome-45f48699/
+Problem Link: https://www.hackerearth.com/problem/algorithm/kth-palindrome-45f48699/
  
-A palindromic number is a number that remains the same when its digits are reversed. Your task is to get the kth palindrome number greater than or equal to X.
+A palindromic number is a number that remains the same when its digits are reversed. Your task is to get the Kth palindrome number greater than or equal to X.
  
 Input format:
 First line: Integer T denoting the number of test cases
@@ -25,8 +25,47 @@ SAMPLE OUTPUT :
 121
 Explanation :
 The first 32 palindrome numbers are:
-1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101, 111, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 222, 232.
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101, 111, 121, 131, 141, 151, 161, 
+171, 181, 191, 202, 212, 222, 232.
+
+===========================================================================================================
+Solution Code Explanation, Hints, References used :
+
+Hint-1 :
+The position of a palindrome within the sequence can be determined almost without calculation: 
+If the palindrome has an even number of digits, prepend a 1 to the front half of the palindrome's digits. 
+If the number of digits is odd, prepend the value of (front digit + 1) to the digits from 
+position 2 to the central digit.
+Examples: 98766789 = A[19876], 515 = A[61], 8206028 = A[9206], 9230329 = A[10230].
+Here A[i] denotes the ith palindrome number, where i is 1-index based. A[1]=0, A[2]=1, A[3]=2,....
  
+Hint-2:
+The (nonzero) palindromes with even number of digits start at A[11] = 11, A[110] = 1001, 
+A[1100] = 100001, .... 
+They are constructed by taking the index (n - 10^L), where L=floor(log10(n)), 
+and append the reversal of this number: A[1101] = 101|101, A[1102] = 102|201, ..., A[1999] = 999|999, etc. 
+This case must be considered for indices n >= 1.1*10^L but n < 2*10^L.
+
+Hine-3:
+When n >= 2*10^L, we get the palindromes with odd number of digits, which begins with 
+A[2] = 1, A[20] = 101, A[200] = 10001 etc., and can be constructed the same way, using again 
+n - 10^L where L=floor(log10(n)), and appending the reversal of that number, now without its last digit: 
+A[21] = 11|1, A[22] = 12|1, ..., A[99] = 89|8, ....
+When n < 1.1*10^L, subtract 1 from L to be in the correct setting with n >= 2*10^L for the case 
+of an odd number of digits.
+ 
+Hint-4:
+The numbers of palindromic numbers less than 10, 10^2, 10^3, ... are 9, 18, 108, 198, 1098, 1998, 
+10998, ... (OEIS A050250). 
+ 
+References:
+http://oeis.org/A002113
+http://oeis.org/A002113/list
+https://stackoverflow.com/questions/15019817/need-algorithm-to-find-the-nth-palindromic-number
+http://mathworld.wolfram.com/PalindromicNumber.html
+http://oeis.org/A050250
+https://www.rhyscitlema.com/algorithms/generating-palindromic-numbers/
+
 *****/
  
 #include<bits/stdc++.h>
@@ -40,9 +79,9 @@ void print(vector<ll>v){
     cout<<endl;
 }
  
-// Function "Nth_pal_util" considers 0 as the 1st , 1 as the 2nd,... palindrome number. So first 20 palindrome numbers are
-// 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101,..
-// But according to question we require nth palindrome number that is equal to  Nth_pal_util(n+1);
+// Function "Nth_pal_util" considers 0 as the 1st , 1 as the 2nd,... palindrome number. 
+// So first 15 palindrome numbers are : 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55,..
+// But according to question we require nth palindrome number that is equal to Nth_pal_util(n+1);
 ll Nth_pal_util(ll n){
     string nt=to_string(n);
     string temp="";
@@ -93,6 +132,7 @@ ll Nth_pal_util(ll n){
         return res;
     }
 }
+
 // This function has very high time complexity as it uses linear search,so gives TLE.
 // ll solve(ll x, ll k){
 //     if(x==1){
@@ -121,15 +161,20 @@ ll Nth_pal_util(ll n){
 //         return Nth_pal_util((i+1)+k-1);
 // }
  
-//This function is highly optimized or most efficient as it uses binary search and so passed all the test cases.
+// This function is highly optimized or most efficient since it uses binary search 
+// and so passed all the test cases.
 ll solve(ll x, ll k){
     if(x==1){
-        return Nth_pal_util(k+1);
+        return Nth_pal_util(k+1);//Simply return the kth palindrome number, So called Nth_pal_util(k+1)
     }
     
     vector<ll>v={9,18,108,198,1098,1998,10998,19998,109998,199998,1099998,1999998,10999998,19999998,109999998,199999998,1099999998,1999999998};
-    vector<ll>dif={9,9,90,90,900,900,9000,9000,90000,90000,900000,900000,9000000,9000000,90000000,90000000,900000000,900000000};
-    ll dx = log10(x);
+	//Vector v: v[i] represents Number of nonzero palindromes less than 10^(i), where i is 1-based index
+
+    vector<ll>diff={9,9,90,90,900,900,9000,9000,90000,90000,900000,900000,9000000,9000000,90000000,90000000,900000000,900000000};
+	// Vector diff: diff[i] represents the number of palindromes of length i, where i is 1-index-based.
+
+    ll dx = log10(x);// dx = No. of digits in x - 1;
     
     if(dx<=1){
         vector<ll>temp={1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99};
@@ -148,30 +193,33 @@ ll solve(ll x, ll k){
                 high=mid-1;
             }
         }
-        return Nth_pal_util(((z+1)+k-1)+1);
+        return Nth_pal_util(((z+1)+k-1)+1);//Return the Nth palindrome number where N = (z+1 + k-1)
     }
-    // vector<ll>w(dif[dx]);
-        // for(ll i=0; i<dif[dx]; i++){
-        //     w[i]=Nth_pal_util(v[dx-1]+i+1+ 1);
-        // }
-        // print(w);
-    ll low1=0, high1=dif[dx]-1; // w.size()=dif[dx]
+
+    // vector<ll>w(diff[dx]);
+	// for(ll i=0; i<diff[dx]; i++){
+	//     w[i]=Nth_pal_util(v[dx-1]+i+1+ 1);
+	// }
+	// print(w);
+
+    ll low1=0, high1=diff[dx]-1; // w.size()=diff[dx]
     ll z1=-1;
     while(low1<=high1){
         ll mid1 = low1+(high1-low1)/2;
-        if( Nth_pal_util(v[dx-1]+mid1+1+1) == x ){ // w[mid1] = Nth_pal_util(v[dx-1]+mid1+1+1)
+		ll value = Nth_pal_util(v[dx-1]+mid1+1+1);
+        if( value == x ){ // w[mid1] = value
             z1=mid1;
             break;
         }
-        else if( Nth_pal_util(v[dx-1]+mid1+1+1) < x ){
+        else if( value < x ){
             low1=mid1+1;
         }
-        else{ //Nth_pal_util(v[dx-1]+mid1+1+1) > x
+        else{ // value > x
             z1=mid1;
             high1=mid1-1;
         }
     }
-    return Nth_pal_util((v[dx-1]+1+z1+k-1)+1);
+    return Nth_pal_util((v[dx-1]+1+z1+k-1)+1);//Return the Nth Palindrome Number where N = v[dx-1]+1+z1+k-1
 }
  
 int main(){
@@ -184,34 +232,3 @@ int main(){
     }
     return 0;
 }
- 
-/**
- 
-Code Explanation / Hints :
-Hint-1 :
-The position of a palindrome within the sequence can be determined almost without calculation: 
-If the palindrome has an even number of digits, prepend a 1 to the front half of the palindrome's digits. 
-If the number of digits is odd, prepend the value of front digit + 1 to the digits from position 2 ... central digit.
-Examples: 98766789 = a(19876), 515 = a(61), 8206028 = a(9206), 9230329 = a(10230).
- 
-Hint-2:
-The (nonzero) palindromes with even number of digits start at p(11) = 11, p(110) = 1001, p(1100) = 100'001,.... 
-They are constructed by taking the index n - 10^L, where L=floor(log10(n)), 
-and append the reversal of this number: p(1101) = 101|101, p(1102) = 102|201, ..., p(1999) = 999|999, etc. 
-This case must be considered for indices n >= 1.1*10^L but n < 2*10^L.
-When n >= 2*10^L, we get the palindromes with odd number of digits, which start with p(2) = 1, p(20) = 101, p(200) = 10001 etc., and 
-can be constructed the same way, using again n - 10^L with L=floor(log10(n)), and appending the reversal of that number, 
-now without its last digit: p(21) = 11|1, p(22) = 12|1, ..., p(99) = 89|8, ....
-When n < 1.1*10^L, subtract 1 from L to be in the correct setting with n >= 2*10^L for the case of an odd number of digits.
- 
-Hint-3:
-The numbers of palindromic numbers less than 10, 10^2, 10^3, ... are 9, 18, 108, 198, 1098, 1998, 10998, ... (OEIS A050250). 
- 
-References:
-http://oeis.org/A002113
-https://stackoverflow.com/questions/15019817/need-algorithm-to-find-the-nth-palindromic-number
-http://mathworld.wolfram.com/PalindromicNumber.html
-http://oeis.org/A050250
-https://www.rhyscitlema.com/algorithms/generating-palindromic-numbers/
- 
-**/
