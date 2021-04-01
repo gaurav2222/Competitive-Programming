@@ -86,7 +86,7 @@ void print(vector<ll>v){
 // But according to question, 1 is the first palindrome number,
 // So we need to call Nth_palindrome(n+1) for the nth palindrome number.
 ll Nth_palindrome(ll n){ // Constraint: 1<=n<=1e9
-	if(n==1)return 0;
+    if(n==1)return 0;
     string nt=to_string(n);
     string temp="";
     string temp2="";
@@ -133,7 +133,7 @@ ll Nth_palindrome(ll n){ // Constraint: 1<=n<=1e9
             }
             res=stoll(ans);
         }
-		      return res;
+	return res;
     }
 }
 
